@@ -1,50 +1,46 @@
-import smtplib
+import smtplib, ssl
 #import schedule
 import time
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
+email_password = os.getenv("email_password")
+smtp_server = os.getenv("smtp_server")
+sender_email = os.getenv("sender_email")
+
 
 
 def send_text():
-    # Set up the SMTP server
-    s = smtplib.SMTP(host='smtp.gmail.com', port=587)
-    s.starttls()
+    context = ssl.create_default_context()
+    with smtplib.SMTP(smtp_server, 587) as server:
+        server.starttls(context=context)
+        server.login(sender_email, email_password)
     
-    # Login to your email account
-    s.login('mikestromme@gmail.com', '')
 
     msg = MIMEMultipart()
 
     message = """
-    Here are the reasons why drumming is important:
-    1. Personal Fulfillment: ...
-    2. Physical and Mental Health Benefits: ...
-    3. Creativity: ...
-    4. Social Benefits: ...
-    5. Life-long Learning: ...
-    6. Inspiration to Others: ...
-    7. Brain Training: ...
-    Remember, the most important thing is that you enjoy what you're doing...
+    This is your message
     """
 
     # setup the parameters of the message
     msg['From']='mikestromme@gmail.com'
     msg['To']='9207169265@vtext.com'  # replace with the correct SMS gateway
-    msg['Subject']="Test"
+    msg['Subject']=message
 
     # add the message content
     msg.attach(MIMEText(message, 'plain'))
 
     # send the message via the server.
-    s.send_message(msg)
+    server.send_message(msg)
     
     del msg
 
     # Terminate the SMTP session and close the connection
-    s.quit()
+    server.quit()
 
 if __name__ == "__main__":
    
